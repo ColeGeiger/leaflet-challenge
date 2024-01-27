@@ -19,50 +19,77 @@
   <script>
     var map = L.map('map').setView([0, 0], 2);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    // Base maps
+    var streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    });
 
-    var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
+    var grayscaleMap = L.tileLayer('https://{s}.tile.grayscale.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    });
 
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, {
-                pointToLayer: function (feature, latlng) {
-                    var magnitude = feature.properties.mag;
-                    var depth = feature.geometry.coordinates[2];
-                    
-                    // Define marker size based on magnitude
-                    var markerSize = magnitude * 5;
-
-                    // Define marker color based on depth
-                    var markerColor = depth < 30 ? 'lightgreen' :
-                                      depth < 70 ? 'orange' :
-                                                   'red';
-
-                    return L.circleMarker(latlng, {
-                        radius: markerSize,
-                        color: markerColor,
-                        fillColor: markerColor,
-                        fillOpacity: 0.7
-                    }).bindPopup(`Magnitude: ${magnitude}<br>Depth: ${depth} km`);
-                }
-            }).addTo(map);
-        });
-
-    var legend = L.control({ position: 'bottomright' });
-
-    legend.onAdd = function (map) {
-        var div = L.DomUtil.create('div', 'info legend');
-        div.innerHTML +=
-            '<i style="background: lightgreen"></i> Depth &lt; 30 km<br>' +
-            '<i style="background: orange"></i> 30 km &le; Depth &lt; 70 km<br>' +
-            '<i style="background: red"></i> Depth &ge; 70 km';
-        return div;
+    // Add base maps to layer control
+    var baseMaps = {
+      "Street Map": streetMap,
+      "Grayscale Map": grayscaleMap
     };
 
-    legend.addTo(map);
+    // Overlay maps
+    var earthquakes = L.layerGroup();
+    var tectonicPlates = L.layerGroup();
+
+    // Add overlay maps to layer control
+    var overlayMaps = {
+      "Earthquakes": earthquakes,
+      "Tectonic Plates": tectonicPlates
+    };
+
+    // Add layer controls
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+    // Set default base map
+    streetMap.addTo(map);
+
+    // Load earthquake data
+    var earthquakeUrl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
+    fetch(earthquakeUrl)
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          pointToLayer: function (feature, latlng) {
+            var magnitude = feature.properties.mag;
+            var depth = feature.geometry.coordinates[2];
+
+            var markerSize = magnitude * 5;
+            var markerColor = depth < 30 ? 'lightgreen' :
+                              depth < 70 ? 'orange' :
+                                           'red';
+
+            return L.circleMarker(latlng, {
+              radius: markerSize,
+              color: markerColor,
+              fillColor: markerColor,
+              fillOpacity: 0.7
+            }).bindPopup(`Magnitude: ${magnitude}<br>Depth: ${depth} km`);
+          }
+        }).addTo(earthquakes);
+      });
+
+    // Load tectonic plates data
+    var tectonicPlatesUrl = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json';
+    fetch(tectonicPlatesUrl)
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: function (feature) {
+            return {
+              color: 'orange',
+              weight: 2
+            };
+          }
+        }).addTo(tectonicPlates);
+      });
+
   </script>
 </body>
 </html>
