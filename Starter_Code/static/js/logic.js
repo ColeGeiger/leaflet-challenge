@@ -52,7 +52,6 @@ fetch(url)
         }).addTo(map);
     });
 
-// Add legend
 var legend = L.control({ position: 'bottomright' });
 
 legend.onAdd = function (map) {
