@@ -55,6 +55,7 @@
     fetch(earthquakeUrl)
       .then(response => response.json())
       .then(data => {
+        console.log('Earthquake data:', data);  // Log the data to console
         L.geoJSON(data, {
           pointToLayer: function (feature, latlng) {
             var magnitude = feature.properties.mag;
@@ -73,6 +74,9 @@
             }).bindPopup(`Magnitude: ${magnitude}<br>Depth: ${depth} km`);
           }
         }).addTo(earthquakes);
+      })
+      .catch(error => {
+        console.error('Error loading earthquake data:', error);
       });
 
     // Load tectonic plates data
@@ -80,6 +84,7 @@
     fetch(tectonicPlatesUrl)
       .then(response => response.json())
       .then(data => {
+        console.log('Tectonic plates data:', data);  // Log the data to console
         L.geoJSON(data, {
           style: function (feature) {
             return {
@@ -88,8 +93,12 @@
             };
           }
         }).addTo(tectonicPlates);
+      })
+      .catch(error => {
+        console.error('Error loading tectonic plates data:', error);
       });
 
   </script>
 </body>
 </html>
+
