@@ -1,5 +1,4 @@
 
-// Initialize the map
 var map = L.map('map').setView([0, 0], 2);
 
 // Base maps
