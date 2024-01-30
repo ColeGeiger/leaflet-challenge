@@ -1,70 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <title>Earthquake Map</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <style>
-    #map {
-      height: 500px;
-    }
-  </style>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Earthquake Map</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin="" />
+
+  <!-- Our CSS -->
+  <link rel="stylesheet" type="text/css" href="static/css/style.css">
 </head>
+
 <body>
 
+  <!-- The div that holds our map -->
   <div id="map"></div>
 
-  <script>
-    var map = L.map('map').setView([0, 0], 2);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson';
-
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, {
-                pointToLayer: function (feature, latlng) {
-                    var magnitude = feature.properties.mag;
-                    var depth = feature.geometry.coordinates[2];
-
-                    // Define marker size based on magnitude
-                    var markerSize = magnitude * 5;
-
-                    // Define marker color based on depth
-                    var markerColor = depth < 30 ? 'lightgreen' :
-                                      depth < 70 ? 'orange' :
-                                                   'red';
-
-                    return L.circleMarker(latlng, {
-                        radius: markerSize,
-                        color: markerColor,
-                        fillColor: markerColor,
-                        fillOpacity: 0.7
-                    }).bindPopup(`Magnitude: ${magnitude}<br>Depth: ${depth} km`);
-                }
-            }).addTo(map);
-        });
-
-    var legend = L.control({ position: 'bottomright' });
-
-    legend.onAdd = function (map) {
-        var div = L.DomUtil.create('div', 'info legend');
-        div.innerHTML +=
-            '<i style="background: lightgreen"></i> Depth &lt; 30 km<br>' +
-            '<i style="background: orange"></i> 30 km &le; Depth &lt; 70 km<br>' +
-            '<i style="background: red"></i> Depth &ge; 70 km';
-        return div;
-    };
-
-    legend.addTo(map);
-  </script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+  <!-- D3 JavaScript -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- Our JavaScript -->
+  <script type="text/javascript" src="static/js/logic.js"></script>
 </body>
+
 </html>
 
 
